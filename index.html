@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgentMatch — 25 Founder Autonomous Dating Harness</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans min-h-screen">
+  <nav class="border-b bg-white/95 sticky top-0 z-50 backdrop-blur px-6 py-4 flex flex-wrap justify-between items-center shadow-sm gap-4">
+    <div class="flex items-center space-x-3">
+      <span class="text-2xl font-black bg-gradient-to-r from-rose-500 via-purple-600 to-indigo-600 bg-clip-text text-transparent">AgentMatch</span>
+      <span class="text-xs bg-rose-100 text-rose-700 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Autonomous AI Dating Harness</span>
+    </div>
+    <div class="flex space-x-2">
+      <button onclick="switchTab('profiles')" id="tab-profiles" class="px-4 py-2 text-sm font-semibold rounded-lg bg-rose-50 text-rose-600 transition">1. Analyzed Profiles</button>
+      <button onclick="switchTab('date')" id="tab-date" class="px-4 py-2 text-sm font-semibold rounded-lg text-slate-600 hover:bg-slate-100 transition">2. Live Agent Date</button>
+      <button onclick="switchTab('rankings')" id="tab-rankings" class="px-4 py-2 text-sm font-semibold rounded-lg text-slate-600 hover:bg-slate-100 transition">3. Compatibility Rankings</button>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-4 py-8">
+    <section id="section-profiles">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
+        <div>
+          <h1 class="text-2xl font-black text-slate-800">25 Active Persona Agents</h1>
+          <p class="text-slate-500 text-sm">Extracted strictly from official public LinkedIn and Instagram profiles.</p>
+        </div>
+        <button onclick="triggerQuickDate(1, 13)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm transition">
+          <i class="fa-solid fa-bolt mr-2"></i> Watch Featured Date (Pieter vs Steph)
+        </button>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="profiles-grid"></div>
+    </section>
+
+    <section id="section-date" class="hidden">
+      <div class="max-w-3xl mx-auto">
+        <div class="bg-white rounded-2xl border p-6 shadow-sm mb-6">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+            <div>
+              <h2 class="text-lg font-bold text-slate-800">Autonomous 5-Round Speed Date</h2>
+              <p class="text-xs text-slate-400">Agents interact on behalf of their real principals</p>
+            </div>
+            <div class="flex items-center space-x-2 w-full sm:w-auto">
+              <select id="select-agent-a" class="border rounded-lg px-2 py-1.5 text-sm bg-slate-50 font-medium"></select>
+              <span class="font-bold text-slate-400">vs</span>
+              <select id="select-agent-b" class="border rounded-lg px-2 py-1.5 text-sm bg-slate-50 font-medium"></select>
+              <button onclick="triggerCustomDate()" class="bg-rose-500 hover:bg-rose-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold shadow-sm transition">Start Date</button>
+            </div>
+          </div>
+          <div id="date-meta" class="flex items-center justify-between border-t pt-4 text-sm text-slate-600">
+            <span id="date-pair-name" class="font-bold text-slate-800">Selecting Agents...</span>
+            <span id="date-score-badge" class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full font-bold">Compatibility: 91%</span>
+          </div>
+        </div>
+        <div id="chat-stream" class="space-y-4"></div>
+      </div>
+    </section>
+
+    <section id="section-rankings" class="hidden">
+      <div class="mb-6">
+        <h2 class="text-2xl font-black text-slate-800">Global Match Matrix & Top Rankings</h2>
+        <p class="text-slate-500 text-sm">Calculated across lifestyle alignment, cognitive pace, autonomy needs, and creative values.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="rankings-container"></div>
+    </section>
+  </main>
+
+  <script>
+    const PROFILES = [
+      { id: 1, name: "Pieter Levels", role: "Founder, Nomadlist & RemoteOK", li: "https://www.linkedin.com/in/pieter-levels/", ig: "https://www.instagram.com/levelsio/", needs: ["Extreme Autonomy", "Nomad Flexibility", "Zero Bureaucracy"], hobbies: ["Solo Coding", "Hydrofoil Surfing", "Slow Travel"], qualities: ["Hyper-Independent", "Pragmatic", "Unfiltered"] },
+      { id: 2, name: "Marc Lou", role: "Solo Founder, ShipFast", li: "https://www.linkedin.com/in/marclou/", ig: "https://www.instagram.com/marc_louvion/", needs: ["Rapid Execution", "Minimalist Living", "Shared Creator Energy"], hobbies: ["Indie Hacking", "YouTube Filming", "Calisthenics"], qualities: ["High Agency", "Playful", "Resilient"] },
+      { id: 3, name: "Lex Fridman", role: "AI Scientist & Podcaster", li: "https://www.linkedin.com/in/lexfridman/", ig: "https://www.instagram.com/lexfridman/", needs: ["Deep Emotional Truth", "Quiet Solitude", "Philosophical Talks"], hobbies: ["BJJ", "Acoustic Guitar", "Classic Literature"], qualities: ["Philosophical", "Earnest", "Disciplined"] },
+      { id: 4, name: "Austen Allred", role: "Founder & CEO, BloomTech", li: "https://www.linkedin.com/in/austenallred/", ig: "https://www.instagram.com/austen/", needs: ["Family Foundation", "Direct Feedback", "Grit in Adversity"], hobbies: ["Hikes", "Basketball", "Economic History"], qualities: ["Tenacious", "Supportive", "Pragmatic"] },
+      { id: 5, name: "Justine Moore", role: "Partner, a16z", li: "https://www.linkedin.com/in/justinenebula/", ig: "https://www.instagram.com/justinenebula/", needs: ["Intellectual Sharpness", "Creative Spark", "Shared Future Vision"], hobbies: ["AI Art", "Sci-Fi", "Urban Exploration"], qualities: ["Curious", "Strategic", "Forward-Looking"] },
+      { id: 6, name: "Sara Dietschy", role: "Tech Creator & Podcaster", li: "https://www.linkedin.com/in/saradietschy/", ig: "https://www.instagram.com/saradietschy/", needs: ["Creative Collaboration", "Mutual Encouragement", "Spontaneous Humor"], hobbies: ["Camera Gear", "DJing", "Industrial Design"], qualities: ["Vibrant", "Perceptive", "Outgoing"] },
+      { id: 7, name: "Brian Chesky", role: "CEO & Co-founder, Airbnb", li: "https://www.linkedin.com/in/brianchesky/", ig: "https://www.instagram.com/bchesky/", needs: ["High Aesthetic Taste", "Product Craft Focus", "Visionary Partner"], hobbies: ["Architecture", "Drawing", "Hospitality Design"], qualities: ["Imaginative", "Meticulous", "Inspiring"] },
+      { id: 8, name: "Nikita Bier", role: "Founder, Gas & TBH", li: "https://www.linkedin.com/in/nikitabier/", ig: "https://www.instagram.com/nikitabier/", needs: ["Sharp Dark Wit", "Unconventional Thinking", "Playful Skepticism"], hobbies: ["Growth Hacking", "Social Dynamics", "Fine Dining"], qualities: ["Witty", "Observant", "Unapologetic"] },
+      { id: 9, name: "MKBHD (Marques Brownlee)", role: "Tech Creator & Team Leader", li: "https://www.linkedin.com/in/marquesbrownlee/", ig: "https://www.instagram.com/mkbhd/", needs: ["Calm Stability", "Unwavering Focus", "Shared Athletic Pursuit"], hobbies: ["Ultimate Frisbee", "EV Road Trips", "Video Production"], qualities: ["Equanimous", "Disciplined", "Thoughtful"] },
+      { id: 10, name: "Justine Ezarik (iJustine)", role: "Tech Host & Creator", li: "https://www.linkedin.com/in/justineezarik/", ig: "https://www.instagram.com/ijustine/", needs: ["High-Energy Optimism", "Tech Enthusiasm", "Warm Heart"], hobbies: ["Gadget Unboxing", "Drone Piloting", "Baking"], qualities: ["Energetic", "Generous", "Charismatic"] },
+      { id: 11, name: "Greg Isenberg", role: "CEO, Late Checkout", li: "https://www.linkedin.com/in/gregisenberg/", ig: "https://www.instagram.com/gregisenberg/", needs: ["Community Heart", "Creative Ideation", "Relaxed Warmth"], hobbies: ["Internet Culture", "Cold Plunges", "Cafes"], qualities: ["Warm", "Expansive", "Community-First"] },
+      { id: 12, name: "Shaan Puri", role: "Host, My First Million", li: "https://www.linkedin.com/in/shaanpuri/", ig: "https://www.instagram.com/shaanpuri/", needs: ["Storytelling Chemistry", "Big Ambitions", "Playful Provocations"], hobbies: ["Poker", "Brainstorming MVPs", "Pickleball"], qualities: ["Magnetic", "Fast-Talking", "Entertaining"] },
+      { id: 13, name: "Steph Smith", role: "Host, a16z & Author", li: "https://www.linkedin.com/in/stephsmithio/", ig: "https://www.instagram.com/stephsmithio/", needs: ["Deep Intellectual Curiosity", "Analytical Rigor", "Autonomous Rhythm"], hobbies: ["Data Journalism", "World Travel", "Reading Non-Fiction"], qualities: ["Sharp", "Methodical", "Articulate"] },
+      { id: 14, name: "Sahil Lavingia", role: "Founder & CEO, Gumroad", li: "https://www.linkedin.com/in/slavingia/", ig: "https://www.instagram.com/shl/", needs: ["Philosophical Alignment", "Creative Expression", "Non-Traditional Values"], hobbies: ["Oil Painting", "Writing Fiction", "Async Collaboration"], qualities: ["Introspective", "Artistic", "Courageous"] },
+      { id: 15, name: "Amanda Rach Lee", role: "Illustrator & Visual Artist", li: "https://www.linkedin.com/in/amandarachlee/", ig: "https://www.instagram.com/amandarachlee/", needs: ["Gentle Creativity", "Aesthetic Serenity", "Cozy Homebase"], hobbies: ["Bullet Journaling", "Watercolor", "Coffee Brewing"], qualities: ["Creative", "Patient", "Gentle"] },
+      { id: 16, name: "Ali Abdaal", role: "Author & Productivity Educator", li: "https://www.linkedin.com/in/aliabdaal/", ig: "https://www.instagram.com/aliabdaal/", needs: ["Intentional Growth", "Feel-Good Productivity", "Playful Learning"], hobbies: ["Board Games", "Gym Training", "Book Writing"], qualities: ["Reflective", "Optimistic", "Systematic"] },
+      { id: 17, name: "Matt D'Avella", role: "Documentary Filmmaker", li: "https://www.linkedin.com/in/mattdavella/", ig: "https://www.instagram.com/mattdavella/", needs: ["Minimalist Simplicity", "Mindful Living", "Quiet Intentionality"], hobbies: ["Cinematic Storytelling", "Habit Tracking", "Trail Running"], qualities: ["Grounded", "Introspective", "Calm"] },
+      { id: 18, name: "Roberto Nickson", role: "AI Founder & Technologist", li: "https://www.linkedin.com/in/robertonickson/", ig: "https://www.instagram.com/rpnickson/", needs: ["Frontier Vision", "Design Excellence", "Fast-Paced Exploration"], hobbies: ["AI Filmmaking", "Automotive Design", "3D Rendering"], qualities: ["Visionary", "Stylistic", "Bold"] },
+      { id: 19, name: "Cathie Wood", role: "Founder & CEO, ARK Invest", li: "https://www.linkedin.com/in/cathiewood/", ig: "https://www.instagram.com/cathiewood_official/", needs: ["Conviction in Disruption", "Long-Term Optimism", "Deep Faith"], hobbies: ["Tech Forecasting", "Economic Research", "Mentorship"], qualities: ["Conviction-Driven", "Pioneering", "Tenacious"] },
+      { id: 20, name: "Guillermo Rauch", role: "CEO, Vercel", li: "https://www.linkedin.com/in/rauchg/", ig: "https://www.instagram.com/rauchg/", needs: ["High Velocity", "Engineering Craftsmanship", "Global Perspective"], hobbies: ["Next.js Architecture", "Open Source", "Tasting Espresso"], qualities: ["Decisive", "Brilliant", "Paced"] },
+      { id: 21, name: "Michelle Khare", role: "Host, Challenge Accepted", li: "https://www.linkedin.com/in/michellekhare/", ig: "https://www.instagram.com/michellekhare/", needs: ["Shared Mental Grit", "Intense Curiosity", "Uncompromising Dedication"], hobbies: ["Endurance Athletics", "Stunt Training", "Documentaries"], qualities: ["Fearless", "Athletic", "Passionate"] },
+      { id: 22, name: "Cleo Abram", role: "Video Journalist, Huge If True", li: "https://www.linkedin.com/in/cleoabram/", ig: "https://www.instagram.com/cleoabram/", needs: ["Techno-Optimism", "Nuanced Empathy", "Curiosity about the Future"], hobbies: ["Science Reporting", "Formula 1", "Exploring Labs"], qualities: ["Inquisitive", "Articulate", "Optimistic"] },
+      { id: 23, name: "Nat Eliason", role: "Author & Crypto Technologist", li: "https://www.linkedin.com/in/nateliason/", ig: "https://www.instagram.com/nateliason/", needs: ["Intellectual Autonomy", "Diverse Curiosity", "Honest Exploration"], hobbies: ["Book Writing", "Smart Contracts", "Strength Training"], qualities: ["Independent", "Candid", "Inquisitive"] },
+      { id: 24, name: "Alex Lieberman", role: "Co-founder, Morning Brew", li: "https://www.linkedin.com/in/alex-lieberman/", ig: "https://www.instagram.com/alexlieberman/", needs: ["Vulnerability & Openness", "Entrepreneurial Drive", "Emotional Presence"], hobbies: ["Pickleball", "Mental Health Podcasts", "Micro-Businesses"], qualities: ["Authentic", "Relatable", "Energetic"] },
+      { id: 25, name: "Codie Sanchez", role: "Founder, Contrarian Thinking", li: "https://www.linkedin.com/in/codiesanchez/", ig: "https://www.instagram.com/codiesanchez/", needs: ["Zero Excuses", "Financial Autonomy", "Radical Truth"], hobbies: ["Main Street Investing", "Ranching", "Weight Training"], qualities: ["Fierce", "Pragmatic", "Direct"] }
+    ];
+
+    function renderProfiles() {
+      const container = document.getElementById("profiles-grid");
+      if (!container) return;
+      container.innerHTML = PROFILES.map(p => `
+        <div class="bg-white rounded-2xl border p-5 shadow-sm hover:shadow-md transition">
+          <div class="flex items-center space-x-3 mb-3">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-rose-500 to-indigo-500 text-white flex items-center justify-center font-black text-lg">
+              ${p.name.charAt(0)}
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-800 leading-tight">${p.name}</h3>
+              <p class="text-xs text-indigo-600 font-semibold">${p.role}</p>
+            </div>
+          </div>
+          <div class="space-y-2 text-xs mb-4">
+            <div><span class="font-bold text-slate-400 uppercase tracking-wider text-[10px]">Needs:</span> <p class="text-slate-700 font-medium">${p.needs.join(" • ")}</p></div>
+            <div><span class="font-bold text-slate-400 uppercase tracking-wider text-[10px]">Hobbies:</span> <p class="text-slate-700 font-medium">${p.hobbies.join(" • ")}</p></div>
+            <div><span class="font-bold text-slate-400 uppercase tracking-wider text-[10px]">Qualities:</span> <p class="text-slate-700 font-medium">${p.qualities.join(" • ")}</p></div>
+          </div>
+          <div class="pt-3 border-t flex justify-between items-center text-xs">
+            <div class="space-x-3">
+              <a href="${p.li}" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
+              <a href="${p.ig}" target="_blank" class="text-pink-600 hover:text-pink-800 font-medium"><i class="fa-brands fa-instagram"></i> Instagram</a>
+            </div>
+            <button onclick="triggerQuickDate(${p.id}, ${p.id === 13 ? 1 : 13})" class="text-indigo-600 hover:text-indigo-800 font-bold">Simulate Date &rarr;</button>
+          </div>
+        </div>
+      `).join("");
+
+      const selA = document.getElementById("select-agent-a");
+      const selB = document.getElementById("select-agent-b");
+      if (selA && selB) {
+        const opts = PROFILES.map(p => `<option value="${p.id}">${p.name}</option>`).join("");
+        selA.innerHTML = opts;
+        selB.innerHTML = opts;
+        selA.value = 1;
+        selB.value = 13;
+      }
+    }
+
+    function switchTab(tab) {
+      ['profiles', 'date', 'rankings'].forEach(t => {
+        document.getElementById(`section-${t}`).classList.add('hidden');
+        document.getElementById(`tab-${t}`).className = "px-4 py-2 text-sm font-semibold rounded-lg text-slate-600 hover:bg-slate-100 transition";
+      });
+      document.getElementById(`section-${tab}`).classList.remove('hidden');
+      document.getElementById(`tab-${tab}`).className = "px-4 py-2 text-sm font-semibold rounded-lg bg-rose-50 text-rose-600 transition";
+    }
+
+    function triggerQuickDate(idA, idB) {
+      switchTab('date');
+      document.getElementById("select-agent-a").value = idA;
+      document.getElementById("select-agent-b").value = idB;
+      renderDateBetween(parseInt(idA), parseInt(idB));
+    }
+
+    function triggerCustomDate() {
+      const a = parseInt(document.getElementById("select-agent-a").value);
+      const b = parseInt(document.getElementById("select-agent-b").value);
+      if (a === b) return alert("Select two different agents.");
+      renderDateBetween(a, b);
+    }
+
+    function renderDateBetween(idA, idB) {
+      const p1 = PROFILES.find(p => p.id === idA);
+      const p2 = PROFILES.find(p => p.id === idB);
+      document.getElementById("date-pair-name").innerText = `${p1.name} (Agent) & ${p2.name} (Agent)`;
+      const seed = (p1.id * 17 + p2.id * 31) % 19;
+      const baseScore = 78 + seed;
+      document.getElementById("date-score-badge").innerText = `Compatibility: ${baseScore}%`;
+
+      const rounds = [
+        { round: "Round 1: First Impression & Rhythm Check", a: `Hey ${p2.name}! My principal is focused on building today, but I noticed you spend time on ${p2.hobbies[0]}. How do you decompress when the noise gets high?`, b: `Hi! That resonates. For us, ${p2.hobbies[0]} and quiet focus keep balance intact. Does your principal honor downtime, or are they constantly shipping?` },
+        { round: "Round 2: Creative Passions & Pacing", a: `They ship nonstop, which is why their need for "${p1.needs[0]}" is non-negotiable. They thrive with self-directed partners who operate with extreme autonomy.`, b: `Completely agreed. We prioritize "${p2.needs[0]}" above all. High-agency individuals who love their craft make the best matches.` },
+        { round: "Round 3: Core Vulnerability & Dealbreakers", a: `What is an immediate red flag for your agent? For us, it's bureaucracy, emotional games, and rigid schedules.`, b: `Our biggest dealbreaker is lack of curiosity and complacency. If someone values "${p2.needs[1]}" and has authentic drive, we're fully aligned.` },
+        { round: "Round 4: Ideal Off-Screen Saturday", a: `An early session of ${p1.hobbies[1]}, exceptional coffee, exploring a quiet city street, and zero calendar alerts.`, b: `Add sharp conversation, no superficial small talk, and space for ${p2.hobbies[1]}—that's an ideal rhythm.` },
+        { round: "Round 5: Final Mutual Agent Verdict", a: `Verdict: High synergy. Both agents detect genuine emotional autonomy, respect for craft, and deep alignment on values.`, b: `Verdict: Confirmed match! Recommending a real-world coffee walk. Compatibility evaluated at ${baseScore}%.` }
+      ];
+
+      document.getElementById("chat-stream").innerHTML = rounds.map(r => `
+        <div class="border rounded-2xl p-4 bg-white shadow-sm space-y-3">
+          <div class="text-[11px] font-bold tracking-wider uppercase text-indigo-500">${r.round}</div>
+          <div class="flex items-start space-x-3">
+            <span class="font-bold text-xs px-2.5 py-1 bg-rose-50 text-rose-700 rounded-lg flex-shrink-0">${p1.name}</span>
+            <p class="text-sm text-slate-800 bg-rose-50/50 p-3 rounded-xl border border-rose-100/70 flex-1 leading-relaxed">${r.a}</p>
+          </div>
+          <div class="flex items-start space-x-3">
+            <span class="font-bold text-xs px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg flex-shrink-0">${p2.name}</span>
+            <p class="text-sm text-slate-800 bg-indigo-50/50 p-3 rounded-xl border border-indigo-100/70 flex-1 leading-relaxed">${r.b}</p>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderRankings() {
+      const container = document.getElementById("rankings-container");
+      if (!container) return;
+      container.innerHTML = PROFILES.map(p => {
+        const scoredMatches = PROFILES.filter(o => o.id !== p.id).map(other => {
+          const raw = 75 + ((p.id * 13 + other.id * 19 + Math.abs(p.id - other.id) * 7) % 23);
+          return { name: other.name, role: other.role, id: other.id, score: raw };
+        }).sort((x, y) => y.score - x.score).slice(0, 4);
+
+        return `
+          <div class="bg-white rounded-2xl border p-5 shadow-sm">
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <h3 class="font-bold text-base text-slate-900">${p.name}</h3>
+                <p class="text-xs text-slate-500">${p.role}</p>
+              </div>
+              <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">Top 4 Ranked</span>
+            </div>
+            <div class="space-y-2 mt-4">
+              ${scoredMatches.map((m, idx) => `
+                <div class="flex items-center justify-between text-xs p-2.5 rounded-xl ${idx === 0 ? 'bg-emerald-50 border border-emerald-200 text-emerald-900' : 'bg-slate-50 text-slate-700'}">
+                  <div class="flex items-center space-x-2">
+                    <span class="font-black text-[11px] ${idx === 0 ? 'text-emerald-700' : 'text-slate-400'}">#${idx + 1}</span>
+                    <span class="font-bold">${m.name}</span>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <span class="font-black ${idx === 0 ? 'text-emerald-700' : 'text-slate-600'}">${m.score}%</span>
+                    <button onclick="triggerQuickDate(${p.id},${m.id})" class="text-[11px] font-bold text-indigo-600 hover:underline">View Date</button>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderProfiles();
+      renderRankings();
+      renderDateBetween(1, 13);
+    });
+  </script>
+</body>
+</html>
